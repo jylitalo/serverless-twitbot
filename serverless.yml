@@ -1,11 +1,5 @@
 # Welcome to Serverless!
 #
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
 # For full config options, check the docs:
 #    docs.serverless.com
 #
@@ -20,59 +14,73 @@ service: aws-python3 # NOTE: update this with your service name
 provider:
   name: aws
   runtime: python3.6
+  memorySize: 512 # optional, in MB, default is 1024
+  timeout: 300 # optional, in seconds, default is 6
+  versionFunctions: false # optional, default is true
 
 # you can overwrite defaults here
-#  stage: dev
-  region: eu-west-1
+  stage: dev
 
 # you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:GetObject"
+      Resource: "arn:aws:s3:::${env:S3_BUCKET}/*"
+    - Effect: "Allow"
+      Action:
+        - "logs:CreateLogGroup"
+        - "logs:CreateLogStream"
+        - "logs:PutLogEvents"
+        - "logs:DescribeLogStreams"
+      Resource: "arn:aws:logs:*:*:*"
 
 # you can define service wide environment variables here
 #  environment:
 #    variable1: value1
 
+plugins:
+  - serverless-python-requirements
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    invalidateCaches: true
+
 # you can add packaging information here
-#package:
-#  include:
-#    - include-me.py
-#    - include-me-dir/**
-#  exclude:
-#    - exclude-me.py
-#    - exclude-me-dir/**
+package:
+  individually: true
+  exclude:
+    - node_modules/**
+    - package-lock.json
 
 functions:
-  aggregate:
-    handler: handler.lambda_handler
+  twitbot:
+    handler: twitbot.index.lambda_handler
+    module: twitbot
     events:
       - schedule:
           rate: cron(0 6 * * ? *)
           enabled: true
 
 #    Define function environment variables here
-#    environment:
-#      variable2: value2
+    environment:
+      CONFIG: "s3://${env:S3_BUCKET}/twitbot.cf"
+      SMTP_USER: "${env:SMTP_USER}"
+      SMTP_PASSWORD: "${env:SMTP_PASSWORD}"
+      SMTP_HOST: "${env:SMTP_HOST}"
+      SMTP_PORT: "${env:SMTP_PORT}"
+      TWITTER_CONSUMER_KEY: "${env:TWITTER_CONSUMER_KEY}"
+      TWITTER_CONSUMER_SECRET: "${env:TWITTER_CONSUMER_SECRET}"
+      TWITTER_ACCESS_TOKEN_KEY: "${env:TWITTER_ACCESS_TOKEN_KEY}"
+      TWITTER_ACCESS_TOKEN_SECRET: "${env:TWITTER_ACCESS_TOKEN_SECRET}"
 
 # you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
+resources:
+  Resources:
+    ConfigBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: "${env:S3_BUCKET}"
 #  Outputs:
 #     NewOutput:
 #       Description: "Description for the output"

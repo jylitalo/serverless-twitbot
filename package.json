@@ -1,0 +1,11 @@
+{
+  "name": "aws-python3",
+  "description": "",
+  "version": "0.1.0",
+  "dependencies": {
+    "npm": "^6.4.1"
+  },
+  "devDependencies": {
+    "serverless-python-requirements": "^3.3.1"
+  }
+}
