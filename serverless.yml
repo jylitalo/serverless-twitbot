@@ -45,7 +45,9 @@ custom:
   pythonRequirements:
     dockerizePip: true
     invalidateCaches: true
-
+    slim: true
+    slimPatterns:
+      - "**/__pycache__"
 # you can add packaging information here
 package:
   individually: true
