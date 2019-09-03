@@ -50,7 +50,6 @@ custom:
       - "**/__pycache__"
 # you can add packaging information here
 package:
-  individually: true
   exclude:
     - node_modules/**
     - package-lock.json
