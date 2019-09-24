@@ -478,12 +478,10 @@ def lambda_handler(event: dict, context: object) -> bool:
     config = get_config(cf_file)
     config.set('api', 'debug', 'False')
     for key in os.environ:
-        if key.startswith('SMTP_'):
+        if key.startswith('SMTP_') or key == 'DEBUG':
             config.set('api', key.lower(), os.environ[key])
         elif key.startswith('TWITTER_'):
             config.set('api', key.lower().split('_', 1)[1], os.environ[key])
-        elif key == 'DEBUG':
-            config.set('api', key.lower(), os.environ[key])
     TwitterBot(config).make_reports()
     return True
 
