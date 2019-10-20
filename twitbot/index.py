@@ -23,7 +23,7 @@ import twitter
 import urllib3
 
 
-class TwitterBot(object):
+class TwitterBot:
     """
     Fetches tweets through Twitter API, filter them and
     send them to recipients.
@@ -205,7 +205,7 @@ class TwitterBot(object):
         return errors
 
 
-class TweetFilter(object):
+class TweetFilter:
     """
     Filter tweets.
     """
